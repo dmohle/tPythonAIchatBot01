@@ -49,6 +49,52 @@ Execute the Python script to launch the server, and navigate to localhost with t
 
 Remember to remove or secure the hardcoded API key before making your code public on GitHub.
 
+## Some ways to overcome the stateless nature of the API interactions:
+
+When you're directly using the OpenAI API to communicate with a language model, the stateless nature of the API means that each query is independent and the model does not inherently recall previous interactions. However, there are a few strategies you can use to create a more conversational and context-aware interaction:
+
+Session-Based Approach: OpenAI provides a way to maintain context through sessions. You can initiate a session and the API will keep track of the conversation history for the duration of that session.
+
+Injecting Context: You can manually maintain the context by including previous questions and answers in the prompt for each new query. This is similar to what's done with chatbots where the context is prepended to the prompt to maintain continuity.
+
+Using the Chat Interface: OpenAI also offers a specialized chat interface for conversational AI which is designed to maintain context across a series of messages.
+
+For the standard Completion.create endpoint, if you want the model to recall previous queries during a single interaction, you would need to manage the conversation history yourself and include it with each request to the API.
+
+For example, if you want to continue a conversation, you could do something like this:
+
+python
+Copy code
+conversation_history = "User: How's the weather today?\nAI: It's quite sunny with a mild breeze."
+
+# Later on, you want to continue the conversation
+new_user_input = "What about tomorrow?"
+
+# Append the new input to the conversation history
+conversation_history += f"\nUser: {new_user_input}\nAI:"
+
+# Now use this updated history as the prompt
+response = openai.Completion.create(
+    engine=model_name,
+    prompt=conversation_history,
+    max_tokens=150,
+    temperature=0.7
+)
+
+# Extract the model's response and update the conversation history
+ai_response = response.choices[0].text.strip()
+conversation_history += ai_response
+
+# conversation_history now has the full conversation that you can use for subsequent API calls
+Keep in mind that there is a limit to the number of tokens that the model can process in a single prompt, so for very long conversations, you might need to truncate older parts of the conversation or summarize them.
+
+
+
+
+
+Regenerate
+
+
 
 
 
